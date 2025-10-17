@@ -1,0 +1,33 @@
+version: '3.8'
+services:
+  notification-api:
+    build: .
+    image: notification-api:latest
+    container_name: notification-api
+    environment:
+      - JAVA_OPTS=-XX:MaxRAMPercentage=75.0
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/api/notifications/healthz"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    volumes:
+      - notification-log:/var/log/notification-api
+volumes:
+  notification-log:
